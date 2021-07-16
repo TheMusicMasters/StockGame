@@ -1,8 +1,8 @@
 #import yfinance as yf
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import mplfinance as mpf
 import streamlit as st
-import akshare as ak
+#import akshare as ak
 import pandas as pd
 import numpy as np
 import time
@@ -12,11 +12,14 @@ st.set_page_config(layout='wide')
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 st.write("""
-# My Stock App
-
-Watching the price of my stock         
-         
+# My Stock Game App
+Watching the price of my stock                  
 """)
+
+# workflows
+# Get the full stock list from tushares
+# Input text file as the filter string
+
 
 
 # if st.button('股吧热度前20'):
