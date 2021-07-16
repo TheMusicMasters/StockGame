@@ -44,32 +44,39 @@ Watching the price of my stock
 
 # load local dataframe
 stock = 'sh.600375'
-datafile = f"/Users/zyan/Workspace/CERNBox/www/Web_projects/StockProjects/stockData/{stock}_2021-06-25.csv"
+#datafile = 'https://cernbox.cern.ch/index.php/s/ipUEu9vlriWW0ef'
+datafile = f"{stock}_2021-06-25.csv"
 df = pd.read_csv(datafile)
 
 st.write(df)
 
 #st.slider('dateIndex', min_value=0, max_value=10)
-# my_slider_val = st.sidebar.slider('dateIndex', 1, df.shape[0])
-# st.write(my_slider_val)
+my_slider_val = st.sidebar.slider('dateIndex', 1, df.shape[0])
+st.write(my_slider_val)
 # st.line_chart(df.high[my_slider_val:])
-start_date = st.sidebar.slider("StartDate", value=datetime(2020, 1, 1), format="YYYY-MM-DD")
-st.write("Start time:", start_date)
+# start_date = st.sidebar.slider("StartDate", value=datetime(2020, 1, 1), format="YYYY-MM-DD")
+# st.write("Start time:", start_date)
 
-end_date = st.sidebar.slider("EndDate", value=datetime(2021, 1, 1), format="YYYY-MM-DD")
-st.write("End time:", end_date)
+# end_date = st.sidebar.slider("EndDate", value=datetime(2021, 1, 1), format="YYYY-MM-DD")
+# st.write("End time:", end_date)
 
-#current = st.sidebar.slider('dateIndex', 1, df.shape[0])
-start_index = df[df.date==str(start_date)[:10]].index[0]
-st.write("Start Index:", start_index)
+# #current = st.sidebar.slider('dateIndex', 1, df.shape[0])
+# start_index = df[df.date==str(start_date)[:10]].index[0]
+# st.write("Start Index:", start_index)
 
-end_index = df[df.date==str(end_date)[:10]].index[0]
-st.write("End Index:", end_index)
+# end_index = df[df.date==str(end_date)[:10]].index[0]
+# st.write("End Index:", end_index)
+################################################################
+# get stock name from sidebar drop list
+
+# download data from baostock
+
+# draw the k line
 
 df['indexDate'] = df['date']
 df.set_index('indexDate', inplace=True)
 df.index = pd.to_datetime(df.index)
-fig = mpf.plot(df.iloc[start_index,end_index],type='candle',mav=(5,10,20),volume=True)
+fig = mpf.plot(df,type='candle',mav=(5,10,20),volume=True)
 st.pyplot(fig)
 
 
