@@ -1,5 +1,5 @@
 #import yfinance as yf
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import mplfinance as mpf
 import streamlit as st
 #import akshare as ak
@@ -8,6 +8,7 @@ import numpy as np
 import time
 from datetime import datetime
 from tradingScan import TradingScan
+
 st.set_page_config(layout='wide')
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
@@ -15,6 +16,10 @@ st.write("""
 # My Stock Game App
 Watching the price of my stock                  
 """)
+
+
+# Embed a music from SoundCloud
+#st_player("https://soundcloud.com/imaginedragons/demons")
 
 # workflows
 # Get the full stock list from tushares
@@ -79,7 +84,7 @@ st.write(my_slider_val)
 df['indexDate'] = df['date']
 df.set_index('indexDate', inplace=True)
 df.index = pd.to_datetime(df.index)
-fig = mpf.plot(df,type='candle',mav=(5,10,20),volume=True)
+fig = mpf.plot(df.iloc[:my_slider_val],type='candle',mav=(5,10,20),volume=True)
 st.pyplot(fig)
 
 
