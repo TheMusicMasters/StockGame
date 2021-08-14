@@ -19,7 +19,7 @@ pro = ts.pro_api()
 st.header('China Stock Scan App (last update 20210814)')
 st.subheader("Notes")
 st.write("""
-- **Copyright : themusicmasters.offical@gmail.com**
+- **Copyright : themusicmasters.official@gmail.com**
 - **RMA10 is the relevant price between ma10 and close. RMA10 = 100*(CLOSE - MA10)/MA10**
 - **Trigger RMA10 is the threshold of selecting hottest stocks in the market**
 - **Buy RMA10 is the threshold of buy in stocks in the market**
@@ -28,7 +28,7 @@ st.write("""
 st.sidebar.subheader('Build up the daily dataframe')
 #end_time = st.sidebar.date_input('End date',datetime.date.today())
 today = date.today()
-start = today - timedelta(days=23)
+start = today - timedelta(days=50)
 start_date = st.sidebar.date_input('Start date', start)
 end_date = st.sidebar.date_input('End date', today)
 sDate = str(start_date).replace('-','')
@@ -121,7 +121,8 @@ def get_buyDf(daily_df,stockList,rma_input):
         buy_df = buy_df.append(stock_df[stock_df.rma10 < rma_input])
     return buy_df
 
-# 20210813 update the get_buyDf with tradingScan class
+# 20210814 update the get_buyDf with tradingScan class
+# todo check the datetime index for watch_df and buy_df
 @st.cache
 def tradingScan(daily_df, stockList, rma10_trigger, rma10_input):
     buy_df = pd.DataFrame()
@@ -131,9 +132,9 @@ def tradingScan(daily_df, stockList, rma10_trigger, rma10_input):
         # check the max rma10
         watch_df= stock_df[stock_df.rma10 > rma10_trigger]
         if watch_df.shape[0] :
-            print(f'{stock} was selected at tradingDate {watch_df.trade_date}')
+            #print(f'{stock} was selected at tradingDate {watch_df.trade_date}')
             buy_df = buy_df.append(stock_df[stock_df.rma10 < rma10_input])
-            print(f'{stock} was bought at tradingDate {buy_df.trade_date}')                  
+            #print(f'{stock} was bought at tradingDate {buy_df.trade_date}')                  
     return buy_df
 
 # draw the k line
