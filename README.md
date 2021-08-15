@@ -7,8 +7,12 @@ Development log
 	-sacn buyDf    ok
 	-mpf k lines plot ok
 	-selections + @st cache ok
+* 13/08/2021 Version 2.0
+	-new app layout 	
+	-refine mpf k line plot
+	-new tradingScan options
 * to do
-	-remove outlier (dividen)
-	-adding HSL check
-	-better inforamtion display
+	-tradingScan to get the datetime index signal_buy < signal_sell
+	-adding HSL check (options)
+	-display trading actions
 	-adding options to load the buyDf locally
