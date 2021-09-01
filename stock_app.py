@@ -22,7 +22,8 @@ st.write("""
 - **Copyright : themusicmasters.official@gmail.com**
 - **RMA10 is the relevant price between ma10 and close. RMA10 = 100*(CLOSE - MA10)/MA10**
 - **Trigger RMA10 is the threshold of selecting hottest stocks in the market**
-- **Buy RMA10 is the threshold of buy in stocks in the market**
+- **Buy RMA10 is the threshold of buying stocks in the market**
+- **Sell RMA10 is the threshold of selling stocks with certain profile rate in the market**
 """)
 
 st.sidebar.subheader('Build up the daily dataframe')
@@ -130,6 +131,10 @@ def tradingScan(daily_df, stockList, rma10_trigger, rma10_input):
         #st.progress(n/len(stockList))
         stock_df = getStockDf(daily_df,stock)
         # check the max rma10
+        # 20210816 v3 move to rma10_tradingScan()
+        #trigger_signal, buy_signal, sell_signal = rma10_tradingScan(stock_df['rma10'], stock_df['close'])
+        
+        
         watch_df= stock_df[stock_df.rma10 > rma10_trigger]
         if watch_df.shape[0] :
             #print(f'{stock} was selected at tradingDate {watch_df.trade_date}')
@@ -231,6 +236,102 @@ def get_rma10_buy(rma10,close,buyValue):
         #previous = value
     return signal
 
+# 20210816 new tradingScan for selling the stock if rma10 > 0
+def rma10_tradingScan(rma10,close):
+    buy_signal   = []
+    sell_signal   = []
+    trigger_signal   = []
+    previous = -1.0
+    trigger = False
+    buy = False
+    sell = True
+    for date,value in rma10.iteritems():
+        if value > 30 and trigger == False and sell == True:
+            trigger_signal.append(close[date]*1.01)
+            sell_signal.append(np.nan)
+            buy_signal.append(np.nan)
+            print(f'find tigger signal {date}')
+            trigger = True
+            buy = False
+        elif trigger == True and value < -10 and buy == False:
+            buy_signal.append(close[date]*0.99)
+            trigger_signal.append(np.nan)
+            sell_signal.append(np.nan)
+            print(f'find buy signal {date} rma10 {value} price {close[date]}')
+            buy = True
+            sell = False
+        elif value > 0 and buy == True and sell == False:
+            sell_signal.append(close[date]*1.01)
+            trigger_signal.append(np.nan)
+            buy_signal.append(np.nan)
+            print(f'find sell signal {date} rma10 {value} price {close[date]}')
+            sell = True
+            trigger = False
+            buy == False
+        else:
+            trigger_signal.append(np.nan)
+            sell_signal.append(np.nan)
+            buy_signal.append(np.nan)
+
+        #previous = value
+    return trigger_signal, buy_signal, sell_signal
+
+
+def rma10_tradingScan_profileRate(rma10,close,profileRate):
+    buy_signal   = []
+    sell_signal   = []
+    trigger_signal   = []
+    previous = -1.0
+    trigger = False
+    buy = False
+    sell = True
+    buy_price = 0
+    for date,value in rma10.iteritems():
+        if value > 30 and trigger == False and sell == True:
+            trigger_signal.append(close[date]*1.01)
+            sell_signal.append(np.nan)
+            buy_signal.append(np.nan)
+            print(f'find tigger signal {date}')
+            trigger = True
+            buy = False
+        elif trigger == True and value < -10 and buy == False:
+            buy_signal.append(close[date]*0.99)
+            buy_price = close[date]
+            trigger_signal.append(np.nan)
+            sell_signal.append(np.nan)
+            print(f'find buy signal {date} rma10 {value} price {close[date]}')
+            buy = True
+            sell = False
+        #elif value > 0 and buy == True and sell == False:
+        elif close[date]>buy_price*(1+ profileRate/100) and buy == True and sell == False:
+            sell_signal.append(close[date]*1.01)
+            trigger_signal.append(np.nan)
+            buy_signal.append(np.nan)
+            print(f'find sell signal {date} rma10 {value} price {close[date]}')
+            sell = True
+            trigger = False
+            buy == False
+            buy_price = 0
+        else:
+            trigger_signal.append(np.nan)
+            sell_signal.append(np.nan)
+            buy_signal.append(np.nan)
+
+        #previous = value
+    return trigger_signal, buy_signal, sell_signal
+
+
+# def get_rma10_sell(rma10,close,buyValue):
+#     signal   = []
+#     previous = -1.0
+#     for date,value in rma10.iteritems():
+#         if value < buyValue:
+#             signal.append(close[date]*0.99)
+#         else:
+#             signal.append(np.nan)
+#         #previous = value
+#     return signal
+
 def plotKlines(daily_df,selected_stock):               
         #stock_stock_df = get_stockstock_df_tushare(selected_stock,sDate,eDate)
         stock_df = daily_df[daily_df.ts_code ==selected_stock]
@@ -251,19 +352,39 @@ def plotKlines(daily_df,selected_stock):
         
         #col1.line_chart(stock_df['close'])
         #st.line_chart(stock_df['rma10'])
-        ap0 = [ mpf.make_addplot(stock_df['rma10'],color='g',panel = 1),
-               mpf.make_addplot(stock_df[stock_df['rma10']<-10],type='scatter',markersize=200,marker='^', panel = 1)]  # uses panel 0 by default
+        #ap0 = [ mpf.make_addplot(stock_df['rma10'],color='g',panel = 1),
+        #       mpf.make_addplot(stock_df[stock_df['rma10']<-10],type='scatter',markersize=200,marker='^', panel = 1)]  # uses panel 0 by default
         #mpf.make_addplot(df['LowerB'],color='b'),  # uses panel 0 by default
         # add check with RMA10 for qfq dataframe
         
         # v2 feature
-        trigger_signal = get_rma10_trigger(stock_df['rma10'], stock_df['close'],rma10_trigger)
-        buy_signal = get_rma10_buy(stock_df['rma10'], stock_df['close'],rma10_buy)
+        # trigger_signal = get_rma10_trigger(stock_df['rma10'], stock_df['close'],rma10_trigger)
+        # buy_signal = get_rma10_buy(stock_df['rma10'], stock_df['close'],rma10_buy)
 
-        apd = [ mpf.make_addplot(stock_df['rma10'],color='y',panel=2),
-                mpf.make_addplot(trigger_signal,type='scatter',markersize=50,marker='v',color = 'g'),
-                mpf.make_addplot(buy_signal,type='scatter',markersize=50,marker='^',color = 'r')]
+        # apd = [ mpf.make_addplot(stock_df['rma10'],color='y',panel=2),
+        #         mpf.make_addplot(trigger_signal,type='scatter',markersize=50,marker='v',color = 'g'),
+        #         mpf.make_addplot(buy_signal,type='scatter',markersize=50,marker='^',color = 'r')]
         
+        #trigger_signal, buy_signal, sell_signal = rma10_tradingScan(stock_df['rma10'], stock_df['close'])
+        trigger_signal, buy_signal, sell_signal = rma10_tradingScan_profileRate(stock_df['rma10'], stock_df['close'],10)
+        apd = [mpf.make_addplot(trigger_signal,type='scatter',markersize=50,marker='v',color = 'y')]
+        
+        if len([x for x in buy_signal if x > 0]) :
+            apd = [mpf.make_addplot(trigger_signal,type='scatter',markersize=50,marker='v',color = 'y'),
+                    mpf.make_addplot(buy_signal,type='scatter',markersize=50,marker='^',color = 'r')]
+            if len([x for x in sell_signal if x > 0]) :
+                apd = [mpf.make_addplot(trigger_signal,type='scatter',markersize=50,marker='v',color = 'y'),
+                    mpf.make_addplot(buy_signal,type='scatter',markersize=50,marker='^',color = 'r'),
+                    mpf.make_addplot(sell_signal,type='scatter',markersize=50,marker='v',color = 'g')]
+        #mpf.plot(stock_df,type='candle',mav=(5,10,20),volume=True, addplot=apd)
+
+        for n,date in enumerate(stock_df['rma10'].index) :
+            if not np.isnan(trigger_signal[n]) :
+                st.write(f'{date} trigger signal found')
+            elif not np.isnan(buy_signal[n]) :
+                st.write(f'{date} buy stock with price {buy_signal[n]}')
+            elif not np.isnan(sell_signal[n]) :
+                st.write(f'{date} sell stock with price {sell_signal[n]}')
         
         st.pyplot(mpf.plot(stock_df,type='candle',mav=(5,10),volume=True, addplot=apd))
 
@@ -325,6 +446,7 @@ if daily_df.shape[0]:
         
         if display_all:
             for stock in stock_selection :
+                st.write(stock)
                 plotKlines(daily_df,stock)
         else :
             selected_stock = st.selectbox('Select the stock code', stock_selection)
