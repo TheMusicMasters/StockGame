@@ -6,6 +6,7 @@ import glob
 from stocks import Stocks
 # class to hold the player info
 # 2021/08/09 new Players class, define the attibutes
+# 2021/08/30 update with more methods 
 # request the dailyData/ folder
 
 class Players :
