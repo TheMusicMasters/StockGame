@@ -14,9 +14,9 @@ st.set_page_config(layout='wide')
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # tushare api token 
-ts_token_key = '5d2fe4ac143088a808f16d07757b4c21c55d25832ad57cd7f98b0188'
-api_key=os.getenv('ts_token_key')
-ts.set_token(api_key)
+#ts_token_key = '5d2fe4ac143088a808f16d07757b4c21c55d25832ad57cd7f98b0188'
+#api_key=os.getenv('ts_token_key')
+ts.set_token('5d2fe4ac143088a808f16d07757b4c21c55d25832ad57cd7f98b0188')
 pro = ts.pro_api()
 
 st.header('中国A股股票交易预测系统 (更新至 2021年10月22日)')
