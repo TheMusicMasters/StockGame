@@ -14,6 +14,7 @@ st.set_page_config(layout='wide')
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # tushare api token 
+ts_token_key = '5d2fe4ac143088a808f16d07757b4c21c55d25832ad57cd7f98b0188'
 api_key=os.getenv('ts_token_key')
 ts.set_token(api_key)
 pro = ts.pro_api()
