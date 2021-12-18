@@ -12,10 +12,10 @@ Development log
 	-refine mpf k line plot
 	-new tradingScan options
 * 18/12/2021 Version 3.0
-* 	-adding chinese version
-* 	-trading data for entire 2021
-* 	-show all trading history
-* 	-customized searching
+ 	-adding chinese version
+ 	-trading data for entire 2021
+ 	-show all trading history
+ 	-customized searching
 * to do
 	-new layout
 	-adding player class to hold the trading info
