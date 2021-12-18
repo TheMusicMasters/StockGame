@@ -13,31 +13,35 @@ from tradingScan import TradingScan
 st.set_page_config(layout='wide')
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
-# tushare api token
-api_key=os.getenv('TIINGO_API_KEY')
-ts.set_token('5d2fe4ac143088a808f16d07757b4c21c55d25832ad57cd7f98b0188')
+# tushare api token 
+api_key=os.getenv('ts_token_key')
+ts.set_token(api_key)
 pro = ts.pro_api()
-st.header('China Stock Scan App (last update 20210814)')
-st.subheader("Notes")
-st.write("""
-- **Copyright : themusicmasters.official@gmail.com**
-- **RMA10 is the relevant price between ma10 and close. RMA10 = 100*(CLOSE - MA10)/MA10**
-- **Trigger RMA10 is the threshold of selecting hottest stocks in the market**
-- **Buy RMA10 is the threshold of buying stocks in the market**
-- **Sell RMA10 is the threshold of selling stocks with certain profile rate in the market**
-""")
 
-st.sidebar.subheader('Build up the daily dataframe')
+st.header('中国A股股票交易预测系统 (更新至 2021年10月22日)')
+
+intro_expander = st.expander(label='使用说明')
+with intro_expander :
+    st.subheader("**版权所有（copyright） : themusicmasters.official@gmail.com**")
+    st.write("""
+    - **风险警示 : 股市有风险，入市需谨慎。本系统仅提供参考，不提供购买和投资建议，请根据自身情况合理投资。**
+    - **使用说明 : 本系统使用收盘价（CLOSE）和收盘价对十日均线偏差值（RMA10 = 100*(CLOSE - MA10)/MA10）作为主要参数，分三步完成选股，买股和卖股的一个交易流程。**
+    - **选股标准 : 当某只股票的RMA10在某日收盘时大于（选股RMA10值）时，表示该股票的股价近期有大幅上涨，属于市场的强势股，触发信号标记到该只股票。**
+    - **买入信号 : 带有触发信号标记的股票短期涨幅过大或者受市场大盘影响，自身会有回调的要求，这时当RMA10小于（买入RMA10值）且当日换手率大于（最小换手率）时触发买入信号。**
+    - **卖出信号 : 根据市场的情绪，当获利超过（获利利润值）时触发卖出信号。**
+    """)
+
+st.sidebar.subheader('创建股票历史数据(前60天）')
 #end_time = st.sidebar.date_input('End date',datetime.date.today())
 today = date.today()
-start = today - timedelta(days=50)
+start = today - timedelta(days=60)
 start_date = st.sidebar.date_input('Start date', start)
 end_date = st.sidebar.date_input('End date', today)
 sDate = str(start_date).replace('-','')
 eDate = str(end_date).replace('-','')
 tradingDays = []
 if start_date < end_date:
-    st.sidebar.success(f'Start date: {start_date}\n\nEnd date: {end_date}')
+    #st.sidebar.success(f'Start date: {start_date}\n\nEnd date: {end_date}')
     # get the trading days from tushare
     retries = 1
     success = False
@@ -45,7 +49,7 @@ if start_date < end_date:
         try:
             cal_df = pro.query('trade_cal', start_date=sDate, end_date=eDate)
             tradingDays = list(cal_df[cal_df.is_open == 1].cal_date.values)
-            st.sidebar.write(f'all trading days in selected period are {tradingDays}')
+            #st.sidebar.write(f'all trading days in selected period are {tradingDays}')
             success = True
         except Exception as e:
             wait = retries * 5;
@@ -391,18 +395,21 @@ def plotKlines(daily_df,selected_stock):
 
 
 daily_df = build_dailyDf(tradingDays)
+
 #if st.sidebar.button('Bulid DataFrame'):
 if daily_df.shape[0]:
-    st.sidebar.success(f'Build daily dataframe successfully! Total {len(tradingDays)} trading days, and total {daily_df.shape[0]} entries')
+    stockList = np.unique(daily_df.ts_code.values)
+    st.sidebar.success(f'数据加载成功！共 {len(tradingDays)} 个交易日， 共有{len(stockList)}只股票，共有{daily_df.shape[0]} 条股票交易信息。')
     # Selections 
-    st.subheader('Set your trading Scan Parameters')
-    col1, col2,col3 = st.columns(3)
-    rma10_trigger = col1.number_input('Trigger RMA10 value', 10,100,30)
-    rma10_buy = col2.number_input('Buy RMA10 value', -50,0,-10)
-    hsl_input = col3.number_input('MHSL10 value(to be added)',1,100,10)
+    #st.subheader('Set your trading Scan Parameters')
+    st.sidebar.subheader('设置你的个性化交易参数')
+    #col1, col2,col3 = st.columns(3)
+    rma10_trigger = st.sidebar.number_input('选股RMA10值', 10,100,30)
+    rma10_buy = st.sidebar.number_input('买入RMA10值', -50,0,-10)
+    rma10_sell = st.sidebar.number_input('卖出利润值', 0,30,10)
+    hsl_input = st.sidebar.number_input('最小换手率',1,100,10)
     col4,col5,col6 = st.columns(3)
     
-    stockList = np.unique(daily_df.ts_code.values)
     # options to select subset of all stocks
     cyb_list = [x for x in stockList if x[:2]== '30']
     zxb_list = [x for x in stockList if x[:3] in ['002','003']]
@@ -421,6 +428,9 @@ if daily_df.shape[0]:
     #     validate_buyDf(buy_df)
         #print(stock_df[stock_df.rma10 < -10])
     if buy_df.shape[0] :
+        buy_expander = st.expander(label='显示所有交易')
+        with buy_expander :
+            st.table(buy_df)
         date_selection = list(np.unique(buy_df.trade_date.values))
         type_selection = ['All','Trigger','Buy','Sell','OnHold']
         #for date in date_selection:
@@ -456,8 +466,16 @@ if daily_df.shape[0]:
             selected_stock = st.selectbox('Select the stock code', stock_selection)
             plotKlines(daily_df,selected_stock)
             
-    
-        
+    # v3 new feature 'user defined k line plot'
+search_expander = st.expander(label='自定义查询')
+with search_expander :
+    col_text, col_button = st.columns(2)
+    stock_code = col_text.text_input('输入你要查询的股票代码（格式 600375.SH）', '600375.SH')
+    search =col_button.checkbox('查询',False)
+    #search_button = col_button.button('查询')
+    if search:
+        st.write(stock_code)
+        plotKlines(daily_df,stock_code)
         # Print trading history
         # buy stock and sell stock
         
