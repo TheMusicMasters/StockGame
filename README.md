@@ -15,7 +15,8 @@ Development log
  	- trading data for entire 2021
  	- show all trading history
  	- customized searching
-* to do
+
+* 19/12/2021 Version 4.0 (major update)
 	- [ ] new layout
 	- [ ] adding player class to hold the trading info
 	- [ ] Play mode 'Manual' or 'Auto'
