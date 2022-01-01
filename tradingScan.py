@@ -1,12 +1,12 @@
-# author Zhen.Yan@cern.ch
-# version 1.0 20210628
-
 import pandas as pd
 import numpy as np
 
+
 class TradingScan():
     """
-    class to create the trading model
+    Author themusicmasters.official@gmail.com
+    Twitter@themusicmaster9
+    Class to create the trading model by using tradingConfig
     RMA10(Relative price between CLOSE and MA10)
     AHSL10(Average days HSL)
     TMA10(Trend of MA10 +/-)
