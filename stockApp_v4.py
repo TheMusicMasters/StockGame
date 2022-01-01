@@ -173,7 +173,7 @@ with st.container():
                         if row.onHoldFlag == False :
                             st.success(f'{row.buyDate.date()}推荐买入{chName}{row.ts_code}，买入价格{row.buyPrice}, 买入当天换手率{row.buyHSL},持有天数{nDays}，于{row.sellDate.date()}价格{row.sellPrice}卖出, 获利比例为{row.profileRate}')
                         else :
-                            st.warning(f'{row.buyDate.date()}推荐买入{chName}{row.ts_code}，买入价格{row.buyPrice}, 持有天数{nDays},截止到{row.sellDate.date()}，收盘价{row.sellPrice}，获利比例为{row.profileRate}')
+                            st.warning(f'{row.buyDate.date()}推荐买入{chName}{row.ts_code}，买入价格{row.buyPrice}, 买入当天换手率{row.buyHSL},持有天数{nDays},截止到{row.sellDate.date()}，收盘价{row.sellPrice}，获利比例为{row.profileRate}')
 
                     #st.download_button(label="Download data as CSV", data=summaryDf, file_name='large_df.csv',mime='text/csv')
                     # 显示扫描结果
