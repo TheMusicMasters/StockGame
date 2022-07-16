@@ -24,3 +24,6 @@ Development log
 	- [ ] adding HSL check (options)
 	- [ ] display trading actions
 	- [ ] adding options to load the data from CSV and SQL
+* 16/07/2022 Version 5.0 (new features)
+	- [ ] Prediction MA10 and RAM10 values
+	- [ ] Weight for trigger signal
